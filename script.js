@@ -1,7 +1,7 @@
 // Global state
 let currentSection = 0;
 let totalSections = 6;
-let apiKey = '';
+let apiKey = 'AIzaSyAZLZGIBwAmp4VX4nU2-913zhMP8f8TxBg';
 let requirementsData = {};
 let aiClarifications = {};
 let wireframeMode = 'basic'; // Track wireframe display mode (basic or enhanced)
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     apiKey = localStorage.getItem('gemini_api_key');
     
     if (!apiKey) {
-        showApiModal();
+        // showApiModal(); // Disabled for user testing - key is pre-configured
     }
     
     // Initialize progress
