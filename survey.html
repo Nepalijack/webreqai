@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebReqAI — User Testing Survey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00ff88;
+      --accent: #ff0066;
+      --bg: #0a0e27;
+      --surface: #1a1f3a;
+      --surface-light: #252b4a;
+      --border: #2d3552;
+      --text: #e4e4e7;
+      --muted: #a1a1aa;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-mono);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(0,255,136,0.04) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,0,102,0.04) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-box {
+      background: var(--primary);
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .logo h1 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .logo h1 span { color: var(--primary); text-shadow: 0 0 12px var(--primary); }
+
+    .header h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.8rem;
+    }
+
+    .header p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin-bottom: 2.5rem;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--surface);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    /* Section */
+    .form-section {
+      display: none;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .form-section.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .section-num {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--bg);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .section-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Question card */
+    .q-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .q-card:focus-within { border-color: rgba(0,255,136,0.4); }
+
+    .q-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .q-label .q-num {
+      color: var(--primary);
+      margin-right: 0.3rem;
+    }
+
+    /* Text input */
+    .q-input, .q-textarea, .q-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .q-input:focus, .q-textarea:focus, .q-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+    }
+
+    .q-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    /* Radio / checkbox options */
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+
+    .option:hover { border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.03); }
+
+    .option input[type="radio"],
+    .option input[type="checkbox"] { display: none; }
+
+    .option-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .option input[type="radio"]:checked ~ .option-dot,
+    .option input[type="checkbox"]:checked ~ .option-dot {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    .option input[type="radio"]:checked ~ .option-dot::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--bg);
+    }
+
+    .option input[type="checkbox"]:checked ~ .option-dot::after {
+      content: '✓';
+      font-size: 10px;
+      color: var(--bg);
+      font-weight: 900;
+    }
+
+    .option:has(input:checked) {
+      border-color: var(--primary);
+      background: rgba(0,255,136,0.06);
+    }
+
+    /* Linear scale */
+    .scale-wrap { width: 100%; }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .scale-options {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .scale-btn {
+      flex: 1;
+      padding: 0.55rem 0;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .scale-btn:hover { border-color: rgba(0,255,136,0.5); color: var(--primary); }
+    .scale-btn.selected { border-color: var(--primary); background: rgba(0,255,136,0.1); color: var(--primary); }
+
+    /* SUS info box */
+    .info-box {
+      background: rgba(0,255,136,0.06);
+      border: 1px solid rgba(0,255,136,0.2);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .info-box strong { color: var(--primary); }
+
+    /* Navigation */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      gap: 1rem;
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+
+    .btn-next {
+      background: var(--primary);
+      border: none;
+      color: var(--bg);
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-next:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+
+    /* Thank you screen */
+    .thankyou {
+      display: none;
+      text-align: center;
+      padding: 3rem 0;
+      animation: fadeUp 0.5s ease;
+    }
+
+    .thankyou.active { display: block; }
+
+    .check-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(0,255,136,0.1);
+      border: 2px solid var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.5rem;
+      animation: popIn 0.5s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .thankyou h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.8rem;
+    }
+
+    .thankyou p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+
+    /* Error */
+    .error-msg {
+      color: var(--accent);
+      font-size: 0.78rem;
+      margin-top: 0.4rem;
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .scale-options { gap: 0.25rem; }
+      .scale-btn { font-size: 0.75rem; padding: 0.5rem 0; }
+      .nav { flex-direction: column-reverse; }
+      .btn-back, .btn-next { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-box">⚡</div>
+      <h1>WebReq<span>AI</span></h1>
+    </div>
+    <h2>User Testing Survey</h2>
+    <p>Thank you for testing WebReqAI! Please complete the tool first, then fill in this short survey. It takes about 5 minutes and your feedback is really valuable.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progressLabel">Section 1 of 3</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- SECTION 1: About You -->
+  <div class="form-section active" id="sec1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h3>About You</h3>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q1.</span> What is your occupation?</div>
+      <input type="text" class="q-input" id="q1" placeholder="e.g. Student, Shop owner, Teacher...">
+      <div class="error-msg" id="err1">Please answer this question.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q2.</span> How comfortable are you with technology?</div>
+      <div class="options" id="q2">
+        <label class="option"><input type="radio" name="q2" value="Complete beginner"><div class="option-dot"></div> Complete beginner</label>
+        <label class="option"><input type="radio" name="q2" value="Some experience"><div class="option-dot"></div> Some experience</label>
+        <label class="option"><input type="radio" name="q2" value="Fairly comfortable"><div class="option-dot"></div> Fairly comfortable</label>
+        <label class="option"><input type="radio" name="q2" value="Very comfortable"><div class="option-dot"></div> Very comfortable</label>
+      </div>
+      <div class="error-msg" id="err2">Please select an option.</div>
+    </div>
+
+    <div class="nav">
+      <div></div>
+      <button class="btn-next" onclick="nextSection(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- SECTION 2: SUS -->
+  <div class="form-section" id="sec2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h3>Usability Questions</h3>
+    </div>
+
+    <div class="info-box">
+      <strong>Instructions:</strong> Rate each statement from <strong>1 (Strongly Disagree)</strong> to <strong>5 (Strongly Agree)</strong> based on your experience using WebReqAI.
+    </div>
+
+    <!-- SUS Q3-Q12 -->
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q3.</span> I think I would like to use this system frequently.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q3">
+          <button class="scale-btn" onclick="selectScale('q3',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q3',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q3',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q3',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q3',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err3">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q4.</span> I found the system unnecessarily complex.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q4">
+          <button class="scale-btn" onclick="selectScale('q4',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q4',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q4',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q4',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q4',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err4">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q5.</span> I thought the system was easy to use.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q5">
+          <button class="scale-btn" onclick="selectScale('q5',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q5',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q5',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q5',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q5',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err5">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q6.</span> I think I would need support to use this system.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q6">
+          <button class="scale-btn" onclick="selectScale('q6',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q6',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q6',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q6',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q6',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err6">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q7.</span> I found the various functions in this system were well integrated.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q7">
+          <button class="scale-btn" onclick="selectScale('q7',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q7',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q7',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q7',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q7',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err7">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q8.</span> I thought there was too much inconsistency in this system.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q8">
+          <button class="scale-btn" onclick="selectScale('q8',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q8',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q8',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q8',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q8',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err8">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q9.</span> I would imagine that most people would learn to use this system very quickly.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q9">
+          <button class="scale-btn" onclick="selectScale('q9',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q9',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q9',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q9',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q9',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err9">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q10.</span> I found the system very cumbersome to use.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q10">
+          <button class="scale-btn" onclick="selectScale('q10',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q10',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q10',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q10',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q10',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err10">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q11.</span> I felt very confident using the system.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q11">
+          <button class="scale-btn" onclick="selectScale('q11',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q11',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q11',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q11',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q11',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err11">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q12.</span> I needed to learn a lot of things before I could get going with this system.</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-options" id="q12">
+          <button class="scale-btn" onclick="selectScale('q12',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q12',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q12',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q12',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q12',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err12">Please select a rating.</div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="prevSection(2)">← Back</button>
+      <button class="btn-next" onclick="nextSection(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Experience -->
+  <div class="form-section" id="sec3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h3>Your Experience</h3>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q13.</span> How helpful were the AI suggestions?</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Not helpful</span><span>Very helpful</span></div>
+        <div class="scale-options" id="q13">
+          <button class="scale-btn" onclick="selectScale('q13',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q13',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q13',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q13',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q13',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err13">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q14.</span> How professional did the generated requirements document look?</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>Not professional</span><span>Very professional</span></div>
+        <div class="scale-options" id="q14">
+          <button class="scale-btn" onclick="selectScale('q14',1)">1</button>
+          <button class="scale-btn" onclick="selectScale('q14',2)">2</button>
+          <button class="scale-btn" onclick="selectScale('q14',3)">3</button>
+          <button class="scale-btn" onclick="selectScale('q14',4)">4</button>
+          <button class="scale-btn" onclick="selectScale('q14',5)">5</button>
+        </div>
+      </div>
+      <div class="error-msg" id="err14">Please select a rating.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q15.</span> Was anything confusing or unclear?</div>
+      <div class="options" id="q15">
+        <label class="option"><input type="radio" name="q15" value="Nothing was confusing"><div class="option-dot"></div> Nothing was confusing</label>
+        <label class="option"><input type="radio" name="q15" value="The AI suggestions were confusing"><div class="option-dot"></div> The AI suggestions were confusing</label>
+        <label class="option"><input type="radio" name="q15" value="The questionnaire questions were unclear"><div class="option-dot"></div> The questionnaire questions were unclear</label>
+        <label class="option"><input type="radio" name="q15" value="The final document was confusing"><div class="option-dot"></div> The final document was confusing</label>
+        <label class="option"><input type="radio" name="q15" value="Other"><div class="option-dot"></div> Other</label>
+      </div>
+      <div class="error-msg" id="err15">Please select an option.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q16.</span> Would you use this tool instead of explaining your website needs directly to a developer?</div>
+      <div class="options" id="q16">
+        <label class="option"><input type="radio" name="q16" value="Yes definitely"><div class="option-dot"></div> Yes definitely</label>
+        <label class="option"><input type="radio" name="q16" value="Probably yes"><div class="option-dot"></div> Probably yes</label>
+        <label class="option"><input type="radio" name="q16" value="Not sure"><div class="option-dot"></div> Not sure</label>
+        <label class="option"><input type="radio" name="q16" value="Probably not"><div class="option-dot"></div> Probably not</label>
+        <label class="option"><input type="radio" name="q16" value="No"><div class="option-dot"></div> No</label>
+      </div>
+      <div class="error-msg" id="err16">Please select an option.</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-label"><span class="q-num">Q17.</span> Any other comments or suggestions? <span style="color:var(--muted);font-weight:400;">(Optional)</span></div>
+      <textarea class="q-textarea" id="q17" placeholder="Share any thoughts, feedback or suggestions..."></textarea>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="prevSection(3)">← Back</button>
+      <button class="btn-next" onclick="submitForm()">Submit →</button>
+    </div>
+  </div>
+
+  <!-- Thank you -->
+  <div class="thankyou" id="thankyou">
+    <div class="check-circle">✓</div>
+    <h2>Thank you!</h2>
+    <p>Your responses have been recorded.<br>Your feedback will help improve WebReqAI for future users.</p>
+  </div>
+
+</div>
+
+<script>
+  // Store scale values
+  const scaleValues = {};
+  let currentSection = 1;
+  const totalSections = 3;
+
+  function selectScale(qId, val) {
+    scaleValues[qId] = val;
+    const btns = document.querySelectorAll(`#${qId} .scale-btn`);
+    btns.forEach((btn, i) => {
+      btn.classList.toggle('selected', i + 1 === val);
+    });
+    // Hide error
+    const err = document.getElementById('err' + qId.replace('q',''));
+    if (err) err.style.display = 'none';
+  }
+
+  function updateProgress(sec) {
+    const pct = Math.round(((sec - 1) / totalSections) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressLabel').textContent = `Section ${sec} of ${totalSections}`;
+  }
+
+  function nextSection(sec) {
+    if (!validateSection(sec)) return;
+    document.getElementById('sec' + sec).classList.remove('active');
+    const next = sec + 1;
+    document.getElementById('sec' + next).classList.add('active');
+    currentSection = next;
+    updateProgress(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function prevSection(sec) {
+    document.getElementById('sec' + sec).classList.remove('active');
+    const prev = sec - 1;
+    document.getElementById('sec' + prev).classList.add('active');
+    currentSection = prev;
+    updateProgress(prev);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateSection(sec) {
+    let valid = true;
+
+    if (sec === 1) {
+      const q1 = document.getElementById('q1').value.trim();
+      if (!q1) { document.getElementById('err1').style.display = 'block'; valid = false; }
+      else document.getElementById('err1').style.display = 'none';
+
+      const q2 = document.querySelector('input[name="q2"]:checked');
+      if (!q2) { document.getElementById('err2').style.display = 'block'; valid = false; }
+      else document.getElementById('err2').style.display = 'none';
+    }
+
+    if (sec === 2) {
+      ['q3','q4','q5','q6','q7','q8','q9','q10','q11','q12'].forEach(q => {
+        const num = q.replace('q','');
+        if (!scaleValues[q]) {
+          document.getElementById('err' + num).style.display = 'block';
+          valid = false;
+        } else {
+          document.getElementById('err' + num).style.display = 'none';
+        }
+      });
+    }
+
+    if (sec === 3) {
+      ['q13','q14'].forEach(q => {
+        const num = q.replace('q','');
+        if (!scaleValues[q]) {
+          document.getElementById('err' + num).style.display = 'block';
+          valid = false;
+        } else {
+          document.getElementById('err' + num).style.display = 'none';
+        }
+      });
+
+      const q15 = document.querySelector('input[name="q15"]:checked');
+      if (!q15) { document.getElementById('err15').style.display = 'block'; valid = false; }
+      else document.getElementById('err15').style.display = 'none';
+
+      const q16 = document.querySelector('input[name="q16"]:checked');
+      if (!q16) { document.getElementById('err16').style.display = 'block'; valid = false; }
+      else document.getElementById('err16').style.display = 'none';
+    }
+
+    return valid;
+  }
+
+  function submitForm() {
+    if (!validateSection(3)) return;
+
+    // Collect all responses
+    const responses = {
+      occupation: document.getElementById('q1').value.trim(),
+      techComfort: document.querySelector('input[name="q2"]:checked')?.value,
+      sus: {
+        q3: scaleValues['q3'], q4: scaleValues['q4'], q5: scaleValues['q5'],
+        q6: scaleValues['q6'], q7: scaleValues['q7'], q8: scaleValues['q8'],
+        q9: scaleValues['q9'], q10: scaleValues['q10'], q11: scaleValues['q11'],
+        q12: scaleValues['q12']
+      },
+      aiHelpfulness: scaleValues['q13'],
+      docProfessionalism: scaleValues['q14'],
+      confusing: document.querySelector('input[name="q15"]:checked')?.value,
+      wouldUse: document.querySelector('input[name="q16"]:checked')?.value,
+      comments: document.getElementById('q17').value.trim()
+    };
+
+    // Calculate SUS score
+    const sus = responses.sus;
+    const oddScore  = (sus.q3-1) + (sus.q5-1) + (sus.q7-1) + (sus.q9-1)  + (sus.q11-1);
+    const evenScore = (5-sus.q4) + (5-sus.q6) + (5-sus.q8) + (5-sus.q10) + (5-sus.q12);
+    const susScore  = (oddScore + evenScore) * 2.5;
+
+    responses.susScore = Math.round(susScore);
+
+    // Store locally
+    const existing = JSON.parse(localStorage.getItem('webreqai_responses') || '[]');
+    existing.push({ ...responses, timestamp: new Date().toISOString() });
+    localStorage.setItem('webreqai_responses', JSON.stringify(existing));
+
+    // Show thank you
+    document.getElementById('sec3').classList.remove('active');
+    document.getElementById('thankyou').classList.add('active');
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressPct').textContent = '100%';
+    document.getElementById('progressLabel').textContent = 'Complete!';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    console.log('Response saved:', responses);
+    console.log('SUS Score:', susScore);
+
+    // Send to Formspree
+    fetch('https://formspree.io/f/xgopyyea', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        'Occupation':            responses.occupation,
+        'Tech Comfort':          responses.techComfort,
+        'SUS Q1 - Use frequently':       sus.q3,
+        'SUS Q2 - Unnecessarily complex': sus.q4,
+        'SUS Q3 - Easy to use':          sus.q5,
+        'SUS Q4 - Need support':         sus.q6,
+        'SUS Q5 - Well integrated':      sus.q7,
+        'SUS Q6 - Inconsistent':         sus.q8,
+        'SUS Q7 - Learn quickly':        sus.q9,
+        'SUS Q8 - Cumbersome':           sus.q10,
+        'SUS Q9 - Confident':            sus.q11,
+        'SUS Q10 - Needed to learn a lot': sus.q12,
+        'SUS Score (out of 100)':        responses.susScore,
+        'AI Helpfulness (1-5)':          responses.aiHelpfulness,
+        'Document Quality (1-5)':        responses.docProfessionalism,
+        'What was confusing':            responses.confusing,
+        'Would use tool':                responses.wouldUse,
+        'Comments':                      responses.comments || 'None',
+        'Submitted at':                  responses.timestamp
+      })
+    }).then(res => {
+      if (!res.ok) console.error('Formspree error:', res.status);
+    }).catch(err => console.error('Submit error:', err));
+  }
+
+  // Init
+  updateProgress(1);
+</script>
+</body>
+</html>
