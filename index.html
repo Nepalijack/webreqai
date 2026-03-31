@@ -1,0 +1,668 @@
+<!-- Setting up -->
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supporting Design Thinking Based Web Site Development with Generative AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- API Key Setup Modal -->
+    <div id="apiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔐 Configure Google Gemini API Key</h2>
+                <p>Your key is stored locally and never sent to our servers</p>
+            </div>
+            <div class="modal-body">
+                <label for="apiKeyInput">Google Gemini API Key:</label>
+                <input type="password" id="apiKeyInput" placeholder="AIza...">
+                <div class="modal-info">
+                    <p>Get your FREE API key from Google AI Studio:</p>
+                    <a href="https://aistudio.google.com/welcome" target="_blank">aistudio.google.com</a>
+                </div>
+                <button id="saveApiKey" class="btn-primary">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Suggestions Modal -->
+    <div id="suggestionsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💡 AI Suggestions</h2>
+                <p>Select and copy the suggestion you like best</p>
+            </div>
+            <div class="modal-body">
+                <div id="suggestionsContent" class="suggestions-content" style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1rem; max-height: 500px; overflow-y: auto; user-select: text; -webkit-user-select: text; -moz-user-select: text; white-space: pre-wrap; font-family: var(--font-body); line-height: 1.6; font-size: 0.95rem;">
+                    <!-- AI suggestions will be inserted here -->
+                </div>
+                <div class="modal-info" style="margin-bottom: 1rem;">
+                    <p>📝 <strong>Tip:</strong> Click and drag to select text, then copy (Ctrl+C / Cmd+C) and paste into your field.</p>
+                </div>
+                <button class="btn-primary" onclick="hideSuggestionsModal()">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <h1>WebReq<span class="accent">AI</span></h1>
+            </div>
+            <button id="settingsBtn" class="btn-settings">⚙️ Settings</button>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text"><span id="progressPercent">0</span>% Complete</p>
+        </div>
+
+        <!-- Introduction Section -->
+        <section id="introSection" class="section active">
+            <div class="intro-content">
+                <h2 class="section-title">Welcome to Your Web Design Journey</h2>
+                <p class="intro-text">
+                    This AI-powered tool helps you clearly communicate your website vision to professional designers. 
+                    We'll guide you through structured questions while our AI assistant clarifies and enhances your responses.
+                </p>
+                <div class="intro-features">
+                    <div class="feature">
+                        <span class="feature-icon">💬</span>
+                        <h3>Smart Conversations</h3>
+                        <p>AI asks clarifying questions when needed</p>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📋</span>
+                        <h3>Structured Process</h3>
+                        <p>Comprehensive coverage of all requirements</p>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📄</span>
+                        <h3>Professional Output</h3>
+                        <p>Designer-ready specification document</p>
+                    </div>
+                </div>
+                <button class="btn-primary btn-large" onclick="startQuestionnaire()">Get Started →</button>
+            </div>
+        </section>
+
+        <!-- Questionnaire Sections -->
+        <section id="questionnaireSection" class="section">
+            <div class="questionnaire-container">
+                <!-- Section 1: Business Goals -->
+                <div class="question-card" data-section="1">
+                    <h2 class="question-title">
+                        <span class="section-number">01</span>
+                        Business Goals & Purpose
+                    </h2>
+                    
+                    <div class="question-group">
+                        <label for="businessPurpose">What is the main purpose of your website?</label>
+                        <textarea id="businessPurpose" rows="4" placeholder="e.g., Sell handmade jewellery online, showcase my photography portfolio, provide information about my consulting services..."></textarea>
+                        <button class="btn-help" onclick="openAIHelp('businessPurpose')">💡 Need help brainstorming?</button>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="businessGoals">What are your main business goals for this website?</label>
+                        <textarea id="businessGoals" rows="4" placeholder="e.g., Generate leads, increase brand awareness, sell products directly, build community..."></textarea>
+                    </div>
+
+                    <div class="ai-clarification" id="clarification-1" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-content">
+                            <p class="ai-question"></p>
+                            <textarea class="ai-response" rows="3" placeholder="Your response..."></textarea>
+                            <button class="btn-submit-ai" onclick="submitAIClarification(1)">Submit →</button>
+                        </div>
+                    </div>
+
+                    <button class="btn-next" onclick="nextSection(1)">Next Section →</button>
+                </div>
+
+                <!-- Section 2: Target Audience -->
+                <div class="question-card" data-section="2" style="display: none;">
+                    <h2 class="question-title">
+                        <span class="section-number">02</span>
+                        Target Audience
+                    </h2>
+
+                    <div class="question-group">
+                        <label for="targetAudience">Who are your ideal visitors/customers?</label>
+                        <textarea id="targetAudience" rows="4" placeholder="e.g., Young professionals aged 25-35, small business owners, parents of young children..."></textarea>
+
+                    </div>
+
+                    <div class="question-group">
+                        <label for="audienceDemographics">Audience Demographics (Optional)</label>
+                        <div class="demographics-grid">
+                            <div>
+                                <label>Age Range:</label>
+                                <input type="text" id="ageRange" placeholder="e.g., 25-45">
+                            </div>
+                            <div>
+                                <label>Location:</label>
+                                <input type="text" id="location" placeholder="e.g., UK, Global">
+                            </div>
+                            <div>
+                                <label>Tech Savviness:</label>
+                                <select id="techLevel">
+                                    <option value="">Select...</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-clarification" id="clarification-2" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-content">
+                            <p class="ai-question"></p>
+                            <textarea class="ai-response" rows="3" placeholder="Your response..."></textarea>
+                            <button class="btn-submit-ai" onclick="submitAIClarification(2)">Submit →</button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-btns">
+                        <button class="btn-back" onclick="prevSection(2)">← Back</button>
+                        <button class="btn-next" onclick="nextSection(2)">Next Section →</button>
+                    </div>
+                </div>
+
+                <!-- Section 3: Design Preferences -->
+                <div class="question-card" data-section="3" style="display: none;">
+                    <h2 class="question-title">
+                        <span class="section-number">03</span>
+                        Design Preferences
+                    </h2>
+                    
+                    <div class="question-group">
+                        <label for="designStyle">What design style appeals to you?</label>
+                        <div class="style-options">
+                            <label class="style-card">
+                                <input type="radio" name="style" value="modern-minimal">
+                                <span>Modern & Minimal</span>
+                            </label>
+                            <label class="style-card">
+                                <input type="radio" name="style" value="bold-creative">
+                                <span>Bold & Creative</span>
+                            </label>
+                            <label class="style-card">
+                                <input type="radio" name="style" value="professional">
+                                <span>Professional & Corporate</span>
+                            </label>
+                            <label class="style-card">
+                                <input type="radio" name="style" value="playful">
+                                <span>Playful & Fun</span>
+                            </label>
+                            <label class="style-card">
+                                <input type="radio" name="style" value="elegant">
+                                <span>Elegant & Luxury</span>
+                            </label>
+                            <label class="style-card">
+                                <input type="radio" name="style" value="other">
+                                <span>Other (describe below)</span>
+                            </label>
+                        </div>
+                        <textarea id="designStyleCustom" rows="2" placeholder="Describe your preferred style..." style="margin-top: 1rem;"></textarea>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="colorPreferences">Colour Preferences</label>
+                        <input type="text" id="colorPreferences" placeholder="e.g., Blue and white, warm earth tones, vibrant colours...">
+                        <button class="btn-help" onclick="openAIHelp('colorPreferences')">💡 Help me choose colours</button>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="inspirationWebsites">Websites you like (Optional)</label>
+                        <textarea id="inspirationWebsites" rows="3" placeholder="Enter URLs or describe websites whose design you admire..."></textarea>
+                    </div>
+
+                    <div class="ai-clarification" id="clarification-3" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-content">
+                            <p class="ai-question"></p>
+                            <textarea class="ai-response" rows="3" placeholder="Your response..."></textarea>
+                            <button class="btn-submit-ai" onclick="submitAIClarification(3)">Submit →</button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-btns">
+                        <button class="btn-back" onclick="prevSection(3)">← Back</button>
+                        <button class="btn-next" onclick="nextSection(3)">Next Section →</button>
+                    </div>
+                </div>
+
+                <!-- Section 4: Pages & Features -->
+                <div class="question-card" data-section="4" style="display: none;">
+                    <h2 class="question-title">
+                        <span class="section-number">04</span>
+                        Pages & Features
+                    </h2>
+                    
+                    <div class="question-group">
+                        <label>What pages do you need?</label>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" value="Home"> Home</label>
+                            <label><input type="checkbox" value="About"> About</label>
+                            <label><input type="checkbox" value="Services"> Services</label>
+                            <label><input type="checkbox" value="Products"> Products</label>
+                            <label><input type="checkbox" value="Portfolio"> Portfolio</label>
+                            <label><input type="checkbox" value="Blog"> Blog</label>
+                            <label><input type="checkbox" value="Contact"> Contact</label>
+                            <label><input type="checkbox" value="FAQ"> FAQ</label>
+                        </div>
+                        <input type="text" id="customPages" placeholder="Other pages..." style="margin-top: 1rem;">
+                    </div>
+
+                    <div class="question-group">
+                        <label>What features do you need?</label>
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" value="Contact Form"> Contact Form</label>
+                            <label><input type="checkbox" value="E-commerce"> E-commerce/Shop</label>
+                            <label><input type="checkbox" value="Booking System"> Booking System</label>
+                            <label><input type="checkbox" value="Image Gallery"> Image Gallery</label>
+                            <label><input type="checkbox" value="Video Integration"> Video Integration</label>
+                            <label><input type="checkbox" value="Newsletter"> Newsletter Signup</label>
+                            <label><input type="checkbox" value="Social Media"> Social Media Integration</label>
+                            <label><input type="checkbox" value="Search"> Search Functionality</label>
+                            <label><input type="checkbox" value="User Accounts"> User Accounts/Login</label>
+                            <label><input type="checkbox" value="Maps"> Maps/Location</label>
+                        </div>
+                        <textarea id="customFeatures" rows="2" placeholder="Other features you need..." style="margin-top: 1rem;"></textarea>
+                    </div>
+
+                    <div class="ai-clarification" id="clarification-4" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-content">
+                            <p class="ai-question"></p>
+                            <textarea class="ai-response" rows="3" placeholder="Your response..."></textarea>
+                            <button class="btn-submit-ai" onclick="submitAIClarification(4)">Submit →</button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-btns">
+                        <button class="btn-back" onclick="prevSection(4)">← Back</button>
+                        <button class="btn-next" onclick="nextSection(4)">Next Section →</button>
+                    </div>
+                </div>
+
+                <!-- Section 5: Content & Resources -->
+                <div class="question-card" data-section="5" style="display: none;">
+                    <h2 class="question-title">
+                        <span class="section-number">05</span>
+                        Content & Resources
+                    </h2>
+                    
+                    <div class="question-group">
+                        <label for="contentReady">Do you have content ready?</label>
+                        <select id="contentReady">
+                            <option value="">Select...</option>
+                            <option value="all">Yes, all content is ready</option>
+                            <option value="some">Some content is ready</option>
+                            <option value="none">No, I need help creating content</option>
+                        </select>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="contentDescription">What content do you have or need?</label>
+                        <textarea id="contentDescription" rows="4" placeholder="e.g., Company description, product photos, blog posts, testimonials, videos..."></textarea>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="branding">Do you have existing branding?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="branding" value="yes"> Yes, I have a logo and brand guidelines</label>
+                            <label><input type="radio" name="branding" value="partial"> I have a logo but no guidelines</label>
+                            <label><input type="radio" name="branding" value="no"> No, I need branding created</label>
+                        </div>
+                    </div>
+
+                    <div class="question-group">
+                        <label>Upload Preview Images (Optional)</label>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            Upload images to see them in your realistic wireframe preview. If you don't have images yet, we'll use placeholders.
+                        </p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div>
+                                <label for="heroImage" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">
+                                    🖼️ Hero/Main Image
+                                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">(Large banner image)</span>
+                                </label>
+                                <input type="file" id="heroImage" accept="image/*" style="display: block; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); width: 100%;">
+                                <div id="heroImagePreview" style="margin-top: 0.5rem; max-width: 200px; display: none;">
+                                    <img style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="productImage1" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">
+                                    📦 Product/Service Image 1
+                                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">(First content section)</span>
+                                </label>
+                                <input type="file" id="productImage1" accept="image/*" style="display: block; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); width: 100%;">
+                                <div id="productImage1Preview" style="margin-top: 0.5rem; max-width: 200px; display: none;">
+                                    <img style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="productImage2" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">
+                                    📦 Product/Service Image 2
+                                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">(Second content section)</span>
+                                </label>
+                                <input type="file" id="productImage2" accept="image/*" style="display: block; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); width: 100%;">
+                                <div id="productImage2Preview" style="margin-top: 0.5rem; max-width: 200px; display: none;">
+                                    <img style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-clarification" id="clarification-5" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-content">
+                            <p class="ai-question"></p>
+                            <textarea class="ai-response" rows="3" placeholder="Your response..."></textarea>
+                            <button class="btn-submit-ai" onclick="submitAIClarification(5)">Submit →</button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-btns">
+                        <button class="btn-back" onclick="prevSection(5)">← Back</button>
+                        <button class="btn-next" onclick="nextSection(5)">Next Section →</button>
+                    </div>
+                </div>
+
+                <!-- Section 6: Budget & Timeline -->
+                <div class="question-card" data-section="6" style="display: none;">
+                    <h2 class="question-title">
+                        <span class="section-number">06</span>
+                        Budget & Timeline
+                    </h2>
+                    
+                    <div class="question-group">
+                        <label for="budget">What is your budget range?</label>
+                        <select id="budget">
+                            <option value="">Select your budget range...</option>
+                            <option value="under-1k">Under £1,000</option>
+                            <option value="1k-3k">£1,000 - £3,000</option>
+                            <option value="3k-5k">£3,000 - £5,000</option>
+                            <option value="5k-10k">£5,000 - £10,000</option>
+                            <option value="over-10k">Over £10,000</option>
+                            <option value="flexible">Flexible/To be discussed</option>
+                        </select>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="timeline">When do you need the website completed?</label>
+                        <select id="timeline">
+                            <option value="">Select timeline...</option>
+                            <option value="urgent">ASAP (within 2 weeks)</option>
+                            <option value="soon">Soon (within 1 month)</option>
+                            <option value="normal">Normal (2-3 months)</option>
+                            <option value="flexible">Flexible timeline</option>
+                        </select>
+                    </div>
+
+                    <div class="question-group">
+                        <label for="additionalInfo">Any additional information?</label>
+                        <textarea id="additionalInfo" rows="4" placeholder="Anything else the designer should know..."></textarea>
+                    </div>
+
+                    <div class="ai-clarification" id="clarification-6" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-content">
+                            <p class="ai-question"></p>
+                            <textarea class="ai-response" rows="3" placeholder="Your response..."></textarea>
+                            <button class="btn-submit-ai" onclick="submitAIClarification(6)">Submit →</button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-btns">
+                        <button class="btn-back" onclick="prevSection(6)">← Back</button>
+                        <button class="btn-generate" onclick="generateRequirements()">Generate Requirements →</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Output Section -->
+        <section id="outputSection" class="section">
+            <div class="output-container">
+                <h2 class="section-title">Your Requirements Document</h2>
+                <p class="output-intro">Your responses have been transformed into a professional requirements specification.</p>
+                
+                <div id="requirementsPreview" class="requirements-preview">
+                    <!-- Generated content will appear here -->
+                </div>
+
+                <hr style="margin: 3rem 0; border: none; border-top: 2px solid var(--border);">
+
+                <!-- Wireframe Section -->
+                <div id="wireframeSection" style="display: none;">
+                    <h2 class="section-title">Visual Website Wireframe</h2>
+                    <p class="output-intro">Based on your design preferences, here's a visual representation of how your website layout might look:</p>
+                    
+                    <!-- Wireframe Mode Toggle -->
+                    <div class="wireframe-toggle" style="display: flex; gap: 1rem; justify-content: center; margin: 1.5rem 0;">
+                        <button id="basicModeBtn" class="btn-toggle active" onclick="switchWireframeMode('basic')">
+                            📋 Basic Layout
+                        </button>
+                        <button id="enhancedModeBtn" class="btn-toggle" onclick="switchWireframeMode('enhanced')">
+                            🎨 Realistic Preview
+                        </button>
+                    </div>
+                    
+                    <div id="wireframePreview" class="wireframe-preview">
+                        <!-- AI-generated SVG wireframe will appear here -->
+                    </div>
+                    
+                    <p class="wireframe-note">
+                        💡 <strong>Note:</strong> This is a simplified layout wireframe showing the structure and organization of your website. 
+                        The actual website will include full styling, branding, images, and interactivity as specified in the requirements above.
+                    </p>
+                    
+                    <div class="wireframe-actions">
+                        <button class="btn-secondary" onclick="regenerateWireframe()">Regenerate Wireframe</button>
+                        <button class="btn-secondary" onclick="downloadWireframeImage()">Download as Image</button>
+                        <button class="btn-primary" onclick="approveWireframe()">Looks Good</button>
+                    </div>
+
+                    <hr style="margin: 3rem 0; border: none; border-top: 2px solid var(--border);">
+                </div>
+
+                <div class="output-actions">
+                    <button class="btn-action" onclick="downloadPDF()">Download PDF</button>
+                    <button class="btn-action" onclick="downloadWord()">Download Word</button>
+                    <button class="btn-action" onclick="emailDocument()">Email to Designer</button>
+                </div>
+
+                <div class="final-actions">
+                    <button class="btn-secondary" onclick="startOver()">← Start Over</button>
+                    <button class="btn-edit" onclick="openReviewModal()">✏️ Edit Answers</button>
+                    <button class="btn-primary" onclick="downloadPDF()">Download Final Document</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>AI is analyzing your responses...</p>
+    </div>
+
+
+    <!-- Review & Edit Answers Modal -->
+    <div id="reviewModal" class="modal review-modal">
+        <div class="modal-content review-modal-content">
+            <div class="modal-header">
+                <h2>✏️ Review & Edit Your Answers</h2>
+                <p>Make any changes below, then regenerate your document.</p>
+            </div>
+            <div class="modal-body review-modal-body">
+
+                <!-- Section 1 -->
+                <div class="review-section">
+                    <div class="review-section-header">
+                        <span class="review-section-number">01</span>
+                        <span class="review-section-title">Business Goals & Purpose</span>
+                    </div>
+                    <div class="review-field">
+                        <label>Main purpose of your website</label>
+                        <textarea id="review_businessPurpose" rows="3"></textarea>
+                    </div>
+                    <div class="review-field">
+                        <label>Main business goals</label>
+                        <textarea id="review_businessGoals" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="review-section">
+                    <div class="review-section-header">
+                        <span class="review-section-number">02</span>
+                        <span class="review-section-title">Target Audience</span>
+                    </div>
+                    <div class="review-field">
+                        <label>Ideal visitors / customers</label>
+                        <textarea id="review_targetAudience" rows="3"></textarea>
+                    </div>
+                    <div class="review-field-row">
+                        <div class="review-field">
+                            <label>Age Range</label>
+                            <input type="text" id="review_ageRange" placeholder="e.g. 25-45">
+                        </div>
+                        <div class="review-field">
+                            <label>Location</label>
+                            <input type="text" id="review_location" placeholder="e.g. UK">
+                        </div>
+                        <div class="review-field">
+                            <label>Tech Savviness</label>
+                            <select id="review_techLevel">
+                                <option value="">Select...</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="review-section">
+                    <div class="review-section-header">
+                        <span class="review-section-number">03</span>
+                        <span class="review-section-title">Design Preferences</span>
+                    </div>
+                    <div class="review-field">
+                        <label>Design style</label>
+                        <input type="text" id="review_designStyle" placeholder="e.g. modern-minimal, bold-creative...">
+                    </div>
+                    <div class="review-field">
+                        <label>Custom style description</label>
+                        <textarea id="review_designStyleCustom" rows="2"></textarea>
+                    </div>
+                    <div class="review-field">
+                        <label>Colour preferences</label>
+                        <input type="text" id="review_colorPreferences" placeholder="e.g. Blue and white...">
+                    </div>
+                    <div class="review-field">
+                        <label>Inspiration websites</label>
+                        <textarea id="review_inspirationWebsites" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 4 -->
+                <div class="review-section">
+                    <div class="review-section-header">
+                        <span class="review-section-number">04</span>
+                        <span class="review-section-title">Pages & Features</span>
+                    </div>
+                    <div class="review-field">
+                        <label>Pages needed</label>
+                        <textarea id="review_pagesNeeded" rows="2"></textarea>
+                    </div>
+                    <div class="review-field">
+                        <label>Special features / functionality</label>
+                        <textarea id="review_specialFeatures" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 5 -->
+                <div class="review-section">
+                    <div class="review-section-header">
+                        <span class="review-section-number">05</span>
+                        <span class="review-section-title">Content & Images</span>
+                    </div>
+                    <div class="review-field">
+                        <label>Content status</label>
+                        <textarea id="review_contentStatus" rows="2"></textarea>
+                    </div>
+                    <div class="review-field">
+                        <label>Additional content notes</label>
+                        <textarea id="review_contentNotes" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 6 -->
+                <div class="review-section">
+                    <div class="review-section-header">
+                        <span class="review-section-number">06</span>
+                        <span class="review-section-title">Budget & Timeline</span>
+                    </div>
+                    <div class="review-field-row">
+                        <div class="review-field">
+                            <label>Budget range</label>
+                            <select id="review_budget">
+                                <option value="">Select...</option>
+                                <option value="under-1k">Under £1,000</option>
+                                <option value="1k-3k">£1,000 - £3,000</option>
+                                <option value="3k-5k">£3,000 - £5,000</option>
+                                <option value="5k-10k">£5,000 - £10,000</option>
+                                <option value="over-10k">Over £10,000</option>
+                                <option value="flexible">Flexible / To be discussed</option>
+                            </select>
+                        </div>
+                        <div class="review-field">
+                            <label>Timeline</label>
+                            <select id="review_timeline">
+                                <option value="">Select...</option>
+                                <option value="urgent">ASAP (within 2 weeks)</option>
+                                <option value="soon">Soon (within 1 month)</option>
+                                <option value="normal">Normal (2-3 months)</option>
+                                <option value="flexible">Flexible timeline</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="review-field">
+                        <label>Additional information</label>
+                        <textarea id="review_additionalInfo" rows="3"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="review-modal-footer">
+                <button class="btn-secondary" onclick="closeReviewModal()">✕ Cancel</button>
+                <button class="btn-primary" onclick="saveAndRegenerate()">🔄 Save & Regenerate Document</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
